@@ -20,14 +20,12 @@ export function HeroSection({ heroBg, clients }: HeroSectionProps) {
           backgroundImage: `url(${heroBg})`,
         }}
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/86 via-black/72 to-black/38 sm:from-black/80 sm:via-black/62 sm:to-black/28 lg:from-black/72 lg:via-black/52 lg:to-black/14" />
-
         <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-start gap-8 lg:justify-center lg:gap-[clamp(1rem,4svh,3rem)]">
           <div className="grid grid-cols-1 items-start gap-4 lg:-translate-y-10 lg:gap-8 xl:gap-10">
             <div className="lg:flex lg:justify-start">
               <div className="w-full pt-0 lg:w-full lg:pt-4">
                 <h1
-                  className="animate-rise mt-0 text-[2.0rem] font-bold leading-[1.04] tracking-tight sm:text-5xl lg:mt-6 hero-title"
+                  className="animate-rise mt-0 text-[1.8rem] font-bold leading-[1.04] tracking-tight sm:text-5xl lg:mt-6 hero-title"
                   style={{ animationDelay: "140ms" }}
                 >
                   Brand &amp; UI/UX
@@ -38,7 +36,7 @@ export function HeroSection({ heroBg, clients }: HeroSectionProps) {
                 </h1>
 
                 <p
-                  className="animate-rise mt-5 max-w-[50vw] text-sm leading-relaxed text-muted-foreground sm:max-w-md lg:mt-6 lg:max-w-2xl hero-sub"
+                  className="animate-rise mt-5 max-w-[50vw] text-xs leading-relaxed text-muted-foreground sm:max-w-md lg:mt-6 lg:max-w-2xl hero-sub"
                   style={{ animationDelay: "240ms" }}
                 >
                   Hi, I&apos;m Dominic Wagner - a UI/UX and brand designer passionate about creating
