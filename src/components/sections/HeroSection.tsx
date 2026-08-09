@@ -54,12 +54,12 @@ export function HeroSection({ heroBg, clients }: HeroSectionProps) {
 
           <div className="animate-rise relative z-20 flex min-h-24 items-center justify-center sm:min-h-28 lg:mt-2 lg:block lg:min-h-0 lg:-translate-y-14" style={{ animationDelay: "420ms" }}>
             <h2 className="text-fade-bottom mt-24 sm:mt-2 select-none text-center text-[19vw] sm:text-[18vw] lg:px-20 xl:px-24 lg:text-[22vw] font-bold leading-[0.85] tracking-tight hero-wordmark">
-              Dominic
+              DHANUSH
             </h2>
           </div>
         </div>
 
-        <div className="animate-float absolute bottom-30 right-4 z-20 hidden items-center gap-3 rounded-2xl border border-primary/40 bg-card/88 px-4 py-3 backdrop-blur-md sm:right-8 lg:flex">
+        <div className="animate-float hidden absolute bottom-30 right-4 z-20 items-center gap-3 rounded-2xl border border-primary/40 bg-card/44 px-4 py-3 backdrop-blur-md sm:right-8 lg:flex">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
             <Zap className="h-5 w-5 fill-primary-foreground text-primary-foreground" />
           </span>
