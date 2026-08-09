@@ -1,5 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
-
 import ctaPortrait from "@/assets/cta-portrait.jpg";
 import heroBg from "@/assets/hero-bg.png";
 import work1 from "@/assets/work-1.jpg";
@@ -19,28 +17,6 @@ import {
   TestimonialsSection,
   WorkSection,
 } from "@/components/sections";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Dominic Wagner — Brand & UI/UX Designer in London" },
-      {
-        name: "description",
-        content:
-          "Dominic Wagner is a London-based brand and UI/UX designer crafting bold identities and seamless digital experiences that connect and convert.",
-      },
-      { property: "og:title", content: "Dominic Wagner — Brand & UI/UX Designer in London" },
-      {
-        property: "og:description",
-        content:
-          "Bold brand identities and intuitive digital experiences from a London-based designer. See selected work, services and plans.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
 
 const works = [work1, work2, work3, work4, work5];
 
@@ -115,7 +91,7 @@ const plans = [
 
 const clients = ["Ultra Blox", "Frame Blox", "Hype Blox", "Supa Blox", "Sky Blox", "Nova Blox"];
 
-function Index() {
+export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
