@@ -115,6 +115,18 @@
   }
 }
 
+/* Orange-only animated wordmark with thin glass outline (applies at all sizes) */
+.hero-wordmark-glass {
+  background: linear-gradient(90deg, #ffd19a 0%, #ff7000 100%);
+  background-size: 200% 200%;
+  animation: hero-gradient-shift 3.8s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.14);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.02), 0 0 12px rgba(255,112,0,0.06);
+}
+
 @utility glow-ring {
   box-shadow: var(--shadow-glow);
 }
@@ -237,6 +249,7 @@
   .hero-wordmark {
     font-size: min(16vw, 18svh);
   }
+  /* moved .hero-wordmark-glass to global scope for mobile support */
   .hero-title {
     font-size: clamp(4rem, 4.9vw, 5.2rem);
   }
