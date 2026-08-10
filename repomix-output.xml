@@ -73,17 +73,11 @@ src/
     Marquee.tsx
     Reveal.tsx
   lib/
-    error-capture.ts
-    error-page.ts
     utils.ts
   routes/
-    __root.tsx
-    index.tsx
     README.md
-  router.tsx
-  routeTree.gen.ts
-  server.ts
-  start.ts
+  App.tsx
+  main.tsx
   styles.css
 .gitignore
 .prettierignore
@@ -92,6 +86,7 @@ AGENTS.md
 bunfig.toml
 components.json
 eslint.config.js
+index.html
 package.json
 README.md
 tsconfig.json
@@ -204,100 +199,6 @@ export function ContactSection({ ctaPortrait }: ContactSectionProps) {
         </div>
       </Reveal>
     </section>
-  );
-}
-</file>
-
-<file path="src/components/sections/HeroSection.tsx">
-import { Zap } from "lucide-react";
-
-import { Marquee } from "@/components/Marquee";
-import { Reveal } from "@/components/Reveal";
-
-import { PillButton } from "./PillButton";
-
-type HeroSectionProps = {
-  heroBg: string;
-  clients: string[];
-};
-
-export function HeroSection({ heroBg, clients }: HeroSectionProps) {
-  return (
-    <div className="flex flex-col lg:min-h-svh">
-      <section
-        id="home"
-        className="relative flex flex-1 flex-col bg-cover bg-no-repeat bg-[position:76%_center] sm:bg-[position:80%_center] lg:bg-[position:right_center] px-4 pb-3 pt-28 sm:px-8 lg:min-h-0 lg:justify-center lg:pt-20"
-        style={{
-          backgroundImage: `url(${heroBg})`,
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/86 via-black/72 to-black/38 sm:from-black/80 sm:via-black/62 sm:to-black/28 lg:from-black/72 lg:via-black/52 lg:to-black/14" />
-
-        <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-start gap-8 lg:justify-center lg:gap-[clamp(1rem,4svh,3rem)]">
-          <div className="grid grid-cols-1 items-start gap-4 lg:-translate-y-10 lg:gap-8 xl:gap-10">
-            <div className="lg:flex lg:justify-start">
-              <div className="w-full pt-0 lg:w-full lg:pt-4">
-                <h1
-                  className="animate-rise mt-0 text-[2.0rem] font-bold leading-[1.04] tracking-tight sm:text-5xl lg:mt-6 hero-title"
-                  style={{ animationDelay: "140ms" }}
-                >
-                  Brand &amp; UI/UX
-                  <br />
-                  Designer based
-                  <br />
-                  in London
-                </h1>
-
-                <p
-                  className="animate-rise mt-5 max-w-[50vw] text-sm leading-relaxed text-muted-foreground sm:max-w-md lg:mt-6 lg:max-w-2xl hero-sub"
-                  style={{ animationDelay: "240ms" }}
-                >
-                  Hi, I&apos;m Dominic Wagner - a UI/UX and brand designer passionate about creating
-                  seamless digital experiences that connect and convert.
-                </p>
-
-                <div className="animate-rise mt-7 lg:mt-8" style={{ animationDelay: "340ms" }}>
-                  <PillButton href="#work" size="lg">
-                    See my works
-                  </PillButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="animate-rise relative z-20 flex min-h-24 items-center justify-center sm:min-h-28 lg:mt-2 lg:block lg:min-h-0 lg:-translate-y-14" style={{ animationDelay: "420ms" }}>
-            <h2 className="text-fade-bottom select-none text-center text-[19vw] sm:text-[18vw] lg:px-20 xl:px-24 lg:text-[22vw] font-bold leading-[0.85] tracking-tight hero-wordmark">
-              Dominic
-            </h2>
-          </div>
-        </div>
-
-        <div className="animate-float absolute bottom-10 right-4 z-20 hidden items-center gap-3 rounded-2xl border border-primary/40 bg-card/88 px-4 py-3 backdrop-blur-md sm:right-8 lg:flex">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-            <Zap className="h-5 w-5 fill-primary-foreground text-primary-foreground" />
-          </span>
-          <span className="leading-tight">
-            <span className="block text-sm font-semibold">Let&apos;s create</span>
-            <span className="block text-sm font-semibold">something great!</span>
-            <span className="block text-xs text-primary">Available for new projects</span>
-          </span>
-        </div>
-      </section>
-
-      <Reveal className="mt-2 shrink-0 border-y border-border py-5 lg:mt-0 lg:py-4">
-        <Marquee duration={30}>
-          {clients.map((client) => (
-            <span
-              key={client}
-              className="flex items-center gap-3 px-8 text-lg font-medium text-muted-foreground lg:text-base"
-            >
-              <span className="h-3.5 w-3.5 rounded-full border-2 border-primary" />
-              {client}
-            </span>
-          ))}
-        </Marquee>
-      </Reveal>
-    </div>
   );
 }
 </file>
@@ -820,123 +721,6 @@ export function Reveal({
 }
 </file>
 
-<file path="src/lib/error-capture.ts">
-// Captures the original Error out-of-band so server.ts can recover the stack
-// when h3 has already swallowed the throw into a generic 500 Response.
-
-let lastCapturedError: { error: unknown; at: number } | undefined;
-const TTL_MS = 5_000;
-
-function record(error: unknown) {
-  lastCapturedError = { error, at: Date.now() };
-}
-
-// h3's HTTPError serializes to {"status":500,"unhandled":true,"message":"HTTPError"} —
-// no stack, no cause — so a plain console.error(error) reaches the log pipeline with
-// the failure detail stripped. Expand Error-like args into a string that keeps the
-// message, stack, and the full cause chain.
-const CAUSE_DEPTH_LIMIT = 5;
-const DESCRIPTION_LENGTH_LIMIT = 8_000;
-
-export function describeError(error: unknown): string {
-  const parts: string[] = [];
-  let current: unknown = error;
-  for (let depth = 0; depth < CAUSE_DEPTH_LIMIT && current != null; depth++) {
-    if (!(current instanceof Error)) {
-      parts.push(typeof current === "string" ? current : safeStringify(current));
-      break;
-    }
-    const label = depth === 0 ? "" : "caused by: ";
-    const status = describeStatus(current);
-    parts.push(`${label}${current.stack ?? `${current.name}: ${current.message}`}${status}`);
-    current = current.cause;
-  }
-  return parts.join("\n").slice(0, DESCRIPTION_LENGTH_LIMIT);
-}
-
-function describeStatus(error: Error): string {
-  const { status, statusCode } = error as { status?: unknown; statusCode?: unknown };
-  const value = status ?? statusCode;
-  return typeof value === "number" ? ` (status ${value})` : "";
-}
-
-function safeStringify(value: unknown): string {
-  try {
-    return JSON.stringify(value) ?? String(value);
-  } catch {
-    return String(value);
-  }
-}
-
-function isErrorLike(value: unknown): value is Error {
-  return value instanceof Error;
-}
-
-// Wrap console.error so errors logged by any layer — including h3's internal
-// unhandled-error logging, which this file cannot hook directly — are both
-// recorded for consumeLastCapturedError and expanded before serialization.
-const originalConsoleError = console.error.bind(console);
-console.error = (...args: unknown[]) => {
-  const expanded = args.map((arg) => {
-    if (!isErrorLike(arg)) return arg;
-    record(arg);
-    return describeError(arg);
-  });
-  originalConsoleError(...expanded);
-};
-
-if (typeof globalThis.addEventListener === "function") {
-  globalThis.addEventListener("error", (event) => record((event as ErrorEvent).error ?? event));
-  globalThis.addEventListener("unhandledrejection", (event) =>
-    record((event as PromiseRejectionEvent).reason),
-  );
-}
-
-export function consumeLastCapturedError(): unknown {
-  if (!lastCapturedError) return undefined;
-  if (Date.now() - lastCapturedError.at > TTL_MS) {
-    lastCapturedError = undefined;
-    return undefined;
-  }
-  const { error } = lastCapturedError;
-  lastCapturedError = undefined;
-  return error;
-}
-</file>
-
-<file path="src/lib/error-page.ts">
-export function renderErrorPage(): string {
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>This page didn't load</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body { font: 15px/1.5 system-ui, -apple-system, sans-serif; background: #fafafa; color: #111; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
-      .card { max-width: 28rem; width: 100%; text-align: center; padding: 2rem; }
-      h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
-      p { color: #4b5563; margin: 0 0 1.5rem; }
-      .actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
-      a, button { padding: 0.5rem 1rem; border-radius: 0.375rem; font: inherit; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
-      .primary { background: #111; color: #fff; }
-      .secondary { background: #fff; color: #111; border-color: #d1d5db; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>This page didn't load</h1>
-      <p>Something went wrong on our end. You can try refreshing or head back home.</p>
-      <div class="actions">
-        <button class="primary" onclick="location.reload()">Try again</button>
-        <a class="secondary" href="/">Go home</a>
-      </div>
-    </div>
-  </body>
-</html>`;
-}
-</file>
-
 <file path="src/lib/utils.ts">
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -946,140 +730,31 @@ export function cn(...inputs: ClassValue[]) {
 }
 </file>
 
-<file path="src/routes/__root.tsx">
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useRouter,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
-import { type ReactNode } from "react";
+<file path="src/routes/README.md">
+# Routes
 
-import appCss from "../styles.css?url";
-import faviconPng from "../assets/favicon.png?url";
+TanStack Start uses **file-based routing**. Every `.tsx` file in this directory
+defines a route. Do **not** create `src/pages/`, `src/routes/_app/index.tsx`, or
+`app/layout.tsx` — those are Next.js / Remix conventions. The only root layout
+is `src/routes/__root.tsx`.
 
-function NotFoundComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+## Conventions
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
-  const router = useRouter();
+| File | URL |
+| --- | --- |
+| `index.tsx` | `/` |
+| `about.tsx` | `/about` |
+| `users/index.tsx` | `/users` |
+| `users/$id.tsx` | `/users/:id` (dynamic — bare `$`, no curly braces) |
+| `posts/{-$category}.tsx` | `/posts/:category?` (optional segment) |
+| `files/$.tsx` | `/files/*` (splat — read via `_splat` param, never `*`) |
+| `_layout.tsx` | layout route (renders children via `<Outlet />`) |
+| `__root.tsx` | app shell — wraps every page; preserve `<Outlet />` |
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Dominic Portfolio" },
-      { name: "description", content: "Personal portfolio website" },
-      { name: "author", content: "Dominic Wagner" },
-      { property: "og:title", content: "Dominic Portfolio" },
-      { property: "og:description", content: "Personal portfolio website" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap",
-      },
-      { rel: "icon", href: faviconPng, type: "image/png" },
-    ],
-  }),
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
-});
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
-function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-    </QueryClientProvider>
-  );
-}
+`routeTree.gen.ts` is auto-generated. Don't edit it by hand.
 </file>
 
-<file path="src/routes/index.tsx">
-import { createFileRoute } from "@tanstack/react-router";
-
+<file path="src/App.tsx">
 import ctaPortrait from "@/assets/cta-portrait.jpg";
 import heroBg from "@/assets/hero-bg.png";
 import work1 from "@/assets/work-1.jpg";
@@ -1099,28 +774,6 @@ import {
   TestimonialsSection,
   WorkSection,
 } from "@/components/sections";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Dominic Wagner — Brand & UI/UX Designer in London" },
-      {
-        name: "description",
-        content:
-          "Dominic Wagner is a London-based brand and UI/UX designer crafting bold identities and seamless digital experiences that connect and convert.",
-      },
-      { property: "og:title", content: "Dominic Wagner — Brand & UI/UX Designer in London" },
-      {
-        property: "og:description",
-        content:
-          "Bold brand identities and intuitive digital experiences from a London-based designer. See selected work, services and plans.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
 
 const works = [work1, work2, work3, work4, work5];
 
@@ -1195,7 +848,7 @@ const plans = [
 
 const clients = ["Ultra Blox", "Frame Blox", "Hype Blox", "Supa Blox", "Sky Blox", "Nova Blox"];
 
-function Index() {
+export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
@@ -1221,464 +874,17 @@ function Index() {
 }
 </file>
 
-<file path="src/routes/README.md">
-# Routes
+<file path="src/main.tsx">
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./styles.css";
 
-TanStack Start uses **file-based routing**. Every `.tsx` file in this directory
-defines a route. Do **not** create `src/pages/`, `src/routes/_app/index.tsx`, or
-`app/layout.tsx` — those are Next.js / Remix conventions. The only root layout
-is `src/routes/__root.tsx`.
-
-## Conventions
-
-| File | URL |
-| --- | --- |
-| `index.tsx` | `/` |
-| `about.tsx` | `/about` |
-| `users/index.tsx` | `/users` |
-| `users/$id.tsx` | `/users/:id` (dynamic — bare `$`, no curly braces) |
-| `posts/{-$category}.tsx` | `/posts/:category?` (optional segment) |
-| `files/$.tsx` | `/files/*` (splat — read via `_splat` param, never `*`) |
-| `_layout.tsx` | layout route (renders children via `<Outlet />`) |
-| `__root.tsx` | app shell — wraps every page; preserve `<Outlet />` |
-
-`routeTree.gen.ts` is auto-generated. Don't edit it by hand.
-</file>
-
-<file path="src/router.tsx">
-import { QueryClient } from "@tanstack/react-query";
-import { createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
-
-export const getRouter = () => {
-  const queryClient = new QueryClient();
-
-  const router = createRouter({
-    routeTree,
-    context: { queryClient },
-    scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
-  });
-
-  return router;
-};
-</file>
-
-<file path="src/routeTree.gen.ts">
-/* eslint-disable */
-
-// @ts-nocheck
-
-// noinspection JSUnusedGlobalSymbols
-
-// This file was automatically generated by TanStack Router.
-// You should NOT make any changes in this file as it will be overwritten.
-// Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
-
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
-</file>
-
-<file path="src/server.ts">
-import "./lib/error-capture";
-
-import { consumeLastCapturedError } from "./lib/error-capture";
-import { renderErrorPage } from "./lib/error-page";
-
-type ServerEntry = {
-  fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
-};
-
-let serverEntryPromise: Promise<ServerEntry> | undefined;
-
-async function getServerEntry(): Promise<ServerEntry> {
-  if (!serverEntryPromise) {
-    serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => (m.default ?? m) as ServerEntry,
-    );
-  }
-  return serverEntryPromise;
-}
-
-// h3 swallows in-handler throws into a normal 500 Response with body
-// {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
-async function normalizeCatastrophicSsrResponse(response: Response): Promise<Response> {
-  if (response.status < 500) return response;
-  const contentType = response.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) return response;
-
-  const body = await response.clone().text();
-  if (!isH3SwallowedErrorBody(body)) return response;
-
-  console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
-  return new Response(renderErrorPage(), {
-    status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
-  });
-}
-
-function isH3SwallowedErrorBody(body: string): boolean {
-  try {
-    const payload = JSON.parse(body) as { unhandled?: unknown; message?: unknown };
-    return payload.unhandled === true && payload.message === "HTTPError";
-  } catch {
-    return false;
-  }
-}
-
-export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
-    try {
-      const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
-      console.error(error);
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
-    }
-  },
-};
-</file>
-
-<file path="src/start.ts">
-import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
-
-import { renderErrorPage } from "./lib/error-page";
-
-const errorMiddleware = createMiddleware().server(async ({ next }) => {
-  try {
-    return await next();
-  } catch (error) {
-    if (error != null && typeof error === "object" && "statusCode" in error) {
-      throw error;
-    }
-    console.error(error);
-    return new Response(renderErrorPage(), {
-      status: 500,
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
-  }
-});
-
-// Start installs this automatically when src/start.ts is absent; defining the
-// file opts out, so re-add it explicitly to keep server functions protected
-// from cross-site requests.
-const csrfMiddleware = createCsrfMiddleware({
-  filter: (ctx) => ctx.handlerType === "serverFn",
-});
-
-export const startInstance = createStart(() => ({
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
-}));
-</file>
-
-<file path="src/styles.css">
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-}
-
-:root {
-  /* Universal brand color controls */
-  --brand-primary: oklch(0.68 0.19 42);
-  --brand-primary-foreground: oklch(0.99 0 0);
-  --brand-secondary: oklch(0.24 0.005 60);
-  --brand-secondary-foreground: oklch(0.98 0 0);
-
-  --radius: 1rem;
-  --background: oklch(0.16 0.004 60);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.2 0.004 60);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.2 0.004 60);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: var(--brand-primary);
-  --primary-foreground: var(--brand-primary-foreground);
-  --secondary: var(--brand-secondary);
-  --secondary-foreground: var(--brand-secondary-foreground);
-  --muted: oklch(0.24 0.005 60);
-  --muted-foreground: oklch(0.72 0.01 60);
-  --accent: var(--brand-primary);
-  --accent-foreground: var(--brand-primary-foreground);
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: var(--brand-primary);
-  --surface: oklch(0.2 0.004 60);
-  --surface-2: oklch(0.24 0.005 60);
-  --shadow-glow: 0 0 60px -12px oklch(from var(--brand-primary) l c h / 0.55);
-  --gradient-fade-bottom: linear-gradient(
-    120deg,
-    oklch(0.72 0.16 255) 0%,
-    oklch(0.98 0 0) 45%,
-    oklch(0.76 0.18 55) 75%,
-    oklch(0.72 0.16 255) 100%
-  );
-}
-
-@layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-}
-
-/* Animated tricolor wordmark gradient */
-@utility text-fade-bottom {
-  background: var(--gradient-fade-bottom);
-  background-size: 220% 220%;
-  animation: hero-gradient-shift 3.8s ease-in-out infinite;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@keyframes hero-gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@utility glow-ring {
-  box-shadow: var(--shadow-glow);
-}
-
-/* Seamless infinite marquee */
-@utility marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
-}
-
-@utility marquee-track-reverse {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite reverse;
-}
-
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.marquee-pause:hover .marquee-track,
-.marquee-pause:hover .marquee-track-reverse {
-  animation-play-state: paused;
-}
-
-/* Reveal on scroll */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-  }
-  .text-fade-bottom {
-    animation: none;
-    background-position: 50% 50%;
-  }
-  .marquee-track,
-  .marquee-track-reverse {
-    animation: none;
-  }
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(36px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.animate-rise {
-  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes soft-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
-}
-
-.animate-soft-pulse {
-  animation: soft-pulse 2s ease-in-out infinite;
-}
-
-@keyframes float-y {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-float {
-  animation: float-y 6s ease-in-out infinite;
-}
-
-/* Desktop: the hero section and the clients marquee live in one shared
-   lg:h-svh block (see index.tsx), so every size below is capped as a share
-   of viewport height (svh) rather than a fixed rem value. That's what lets
-   the whole group — heading, portrait, wordmark, and the marquee row below
-   it — settle inside exactly one screen: each piece shrinks together on
-   short/laptop screens and grows together on tall ones, instead of the
-   wordmark or portrait quietly claiming space the marquee needed.
-   The wrapping flex gap (see the gap-[clamp(...)] on the hero's inner
-   container) picks up any space left over once these caps are hit, so nudge
-   these numbers up first if you see extra empty space on your screen, and
-   down first if the marquee ever gets pushed below the fold. */
-@media (min-width: 1024px) {
-  .hero-media {
-    max-width: min(34rem, 46svh);
-  }
-  .hero-wordmark {
-    font-size: min(16vw, 18svh);
-  }
-  .hero-title {
-    font-size: clamp(4rem, 4.9vw, 5.2rem);
-  }
-  .hero-sub {
-    font-size: clamp(1.08rem, 1.2vw, 1.25rem);
-  }
-}
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
 </file>
 
 <file path=".gitignore">
@@ -1827,94 +1033,28 @@ export default tseslint.config(
 );
 </file>
 
-<file path="package.json">
-{
-  "name": "tanstack_start_ts",
-  "private": true,
-  "sideEffects": false,
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "format": "prettier --write ."
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@radix-ui/react-accordion": "^1.2.12",
-    "@radix-ui/react-alert-dialog": "^1.1.15",
-    "@radix-ui/react-aspect-ratio": "^1.1.8",
-    "@radix-ui/react-avatar": "^1.1.11",
-    "@radix-ui/react-checkbox": "^1.3.3",
-    "@radix-ui/react-collapsible": "^1.1.12",
-    "@radix-ui/react-context-menu": "^2.2.16",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-hover-card": "^1.1.15",
-    "@radix-ui/react-label": "^2.1.8",
-    "@radix-ui/react-menubar": "^1.1.16",
-    "@radix-ui/react-navigation-menu": "^1.2.14",
-    "@radix-ui/react-popover": "^1.1.15",
-    "@radix-ui/react-progress": "^1.1.8",
-    "@radix-ui/react-radio-group": "^1.3.8",
-    "@radix-ui/react-scroll-area": "^1.2.10",
-    "@radix-ui/react-select": "^2.2.6",
-    "@radix-ui/react-separator": "^1.1.8",
-    "@radix-ui/react-slider": "^1.3.6",
-    "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-switch": "^1.2.6",
-    "@radix-ui/react-tabs": "^1.1.13",
-    "@radix-ui/react-toggle": "^1.1.10",
-    "@radix-ui/react-toggle-group": "^1.1.11",
-    "@radix-ui/react-tooltip": "^1.2.8",
-    "@tailwindcss/vite": "^4.2.1",
-    "@tanstack/react-query": "^5.101.1",
-    "@tanstack/react-router": "^1.170.18",
-    "@tanstack/react-start": "^1.168.32",
-    "@tanstack/router-plugin": "^1.168.23",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "cmdk": "^1.1.1",
-    "date-fns": "^4.1.0",
-    "embla-carousel-react": "^8.6.0",
-    "input-otp": "^1.4.2",
-    "lucide-react": "^0.575.0",
-    "react": "^19.2.0",
-    "react-day-picker": "^9.14.0",
-    "react-dom": "^19.2.0",
-    "react-hook-form": "^7.71.2",
-    "react-resizable-panels": "^4.6.5",
-    "recharts": "^2.15.4",
-    "sonner": "^2.0.7",
-    "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.1",
-    "tw-animate-css": "^1.3.4",
-    "vaul": "^1.1.2",
-    "vite-tsconfig-paths": "^6.0.2",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "^2.10.0",
-    "@types/node": "^22.16.5",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^5.2.0",
-    "eslint": "^9.32.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-prettier": "^5.2.6",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^15.15.0",
-    "nitro": "3.0.260603-beta",
-    "prettier": "^3.7.3",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.56.1",
-    "vite": "^8.2.0"
-  }
-}
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dominic Wagner is a London-based brand and UI/UX designer crafting bold identities and seamless digital experiences that connect and convert." />
+    <meta property="og:title" content="Dominic Wagner — Brand & UI/UX Designer in London" />
+    <meta property="og:description" content="Bold brand identities and intuitive digital experiences from a London-based designer. See selected work, services and plans." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Dominic Wagner — Brand & UI/UX Designer in London</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
 </file>
 
 <file path="README.md">
@@ -1977,18 +1117,765 @@ npm run dev
 }
 </file>
 
+<file path="src/styles.css">
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  /* Universal brand color controls */
+  --brand-primary: oklch(0.68 0.19 42);
+  --brand-primary-foreground: oklch(0.99 0 0);
+  --brand-secondary: oklch(0.24 0.005 60);
+  --brand-secondary-foreground: oklch(0.98 0 0);
+
+  --radius: 1rem;
+  --background: oklch(0.16 0.004 60);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.2 0.004 60);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.2 0.004 60);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--brand-primary-foreground);
+  --secondary: var(--brand-secondary);
+  --secondary-foreground: var(--brand-secondary-foreground);
+  --muted: oklch(0.24 0.005 60);
+  --muted-foreground: oklch(0.72 0.01 60);
+  --accent: var(--brand-primary);
+  --accent-foreground: var(--brand-primary-foreground);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--brand-primary);
+  --surface: oklch(0.2 0.004 60);
+  --surface-2: oklch(0.24 0.005 60);
+  --shadow-glow: 0 0 60px -12px oklch(from var(--brand-primary) l c h / 0.55);
+  --gradient-fade-bottom: linear-gradient(
+    120deg,
+    oklch(0.72 0.16 255) 0%,
+    oklch(0.98 0 0) 45%,
+    oklch(0.76 0.18 55) 75%,
+    oklch(0.72 0.16 255) 100%
+  );
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Animated tricolor wordmark gradient */
+@utility text-fade-bottom {
+  background: var(--gradient-fade-bottom);
+  background-size: 220% 220%;
+  animation: hero-gradient-shift 3.8s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes hero-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Orange-only animated wordmark with thin glass outline (applies at all sizes) */
+.hero-wordmark-glass {
+  background: linear-gradient(90deg, #ffd19a 0%, #ff7000 100%);
+  background-size: 200% 200%;
+  animation: hero-gradient-shift 3.8s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.14);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.02), 0 0 12px rgba(255,112,0,0.06);
+}
+
+@utility glow-ring {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Seamless infinite marquee */
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+}
+
+@utility marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite reverse;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-pause:hover .marquee-track,
+.marquee-pause:hover .marquee-track-reverse {
+  animation-play-state: paused;
+}
+
+/* Reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .text-fade-bottom {
+    animation: none;
+    background-position: 50% 50%;
+  }
+  .marquee-track,
+  .marquee-track-reverse {
+    animation: none;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+/* Desktop: the hero section and the clients marquee live in one shared
+   lg:h-svh block (see index.tsx), so every size below is capped as a share
+   of viewport height (svh) rather than a fixed rem value. That's what lets
+   the whole group — heading, portrait, wordmark, and the marquee row below
+   it — settle inside exactly one screen: each piece shrinks together on
+   short/laptop screens and grows together on tall ones, instead of the
+   wordmark or portrait quietly claiming space the marquee needed.
+   The wrapping flex gap (see the gap-[clamp(...)] on the hero's inner
+   container) picks up any space left over once these caps are hit, so nudge
+   these numbers up first if you see extra empty space on your screen, and
+   down first if the marquee ever gets pushed below the fold. */
+@media (min-width: 1024px) {
+  .hero-media {
+    max-width: min(34rem, 46svh);
+  }
+  .hero-wordmark {
+    font-size: min(16vw, 18svh);
+  }
+  /* moved .hero-wordmark-glass to global scope for mobile support */
+  .hero-title {
+    font-size: clamp(4rem, 4.9vw, 5.2rem);
+  }
+  .hero-sub {
+    font-size: clamp(1.08rem, 1.2vw, 1.25rem);
+  }
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "tanstack_start_ts",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-aspect-ratio": "^1.1.8",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-context-menu": "^2.2.16",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-hover-card": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-menubar": "^1.1.16",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-progress": "^1.1.8",
+    "@radix-ui/react-radio-group": "^1.3.8",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toggle": "^1.1.10",
+    "@radix-ui/react-toggle-group": "^1.1.11",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tailwindcss/vite": "^4.2.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.1.0",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.575.0",
+    "react": "^19.2.0",
+    "react-day-picker": "^9.14.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.71.2",
+    "react-icons": "^5.7.0",
+    "react-resizable-panels": "^4.6.5",
+    "recharts": "^2.15.4",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.1",
+    "tw-animate-css": "^1.3.4",
+    "vaul": "^1.1.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^22.16.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.15.0",
+    "prettier": "^3.7.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^8.2.0"
+  }
+}
+</file>
+
 <file path="vite.config.ts">
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  tanstackStart: {
-    server: { entry: "server" },
-    prerender: {
-      enabled: true,
-      crawlLinks: true,
-    },
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    tsconfigPaths: true,
   },
 });
+</file>
+
+<file path="src/components/sections/HeroSection.tsx">
+import { Zap } from "lucide-react";
+import {
+  FaReact,
+  FaFigma,
+} from "react-icons/fa";
+import {
+  SiJavascript,
+  SiTailwindcss,
+} from "react-icons/si";
+
+import { Marquee } from "@/components/Marquee";
+import { Reveal } from "@/components/Reveal";
+
+import { PillButton } from "./PillButton";
+
+type HeroSectionProps = {
+  heroBg: string;
+  clients: string[];
+};
+
+export function HeroSection({
+  heroBg,
+  clients,
+}: HeroSectionProps) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <section
+        id="home"
+        className="
+          relative
+          flex
+          flex-1
+          flex-col
+          bg-cover
+          bg-no-repeat
+          bg-[position:76%_center]
+          px-4
+          pb-3
+          pt-28
+          sm:px-8
+          sm:bg-[position:80%_center]
+          lg:min-h-0
+          lg:justify-center
+          lg:bg-[position:right_center]
+          lg:pt-20
+        "
+        style={{
+          backgroundImage: `url(${heroBg})`,
+        }}
+      >
+        {/* Main Hero Content */}
+        <div className="relative z-10 flex flex-1 flex-col">
+          <div className="lg:flex lg:flex-col lg:justify-center">
+            <h1
+              className="
+                animate-rise
+                mt-0
+                text-[1.8rem]
+                font-bold
+                leading-[1.04]
+                tracking-tight
+                sm:text-5xl
+                lg:mt-6
+                hero-title
+              "
+              style={{ animationDelay: "140ms" }}
+            >
+              Brand & UI/UX
+              <br />
+              Designer based
+              <br />
+              in London
+            </h1>
+
+            {/* Technology Cards */}
+            <div
+              className="
+                animate-rise
+                mt-5
+                max-w-[50vw]
+                sm:max-w-md
+                lg:mt-6
+                lg:max-w-2xl
+                hero-sub
+                flex
+              "
+              style={{ animationDelay: "240ms" }}
+            >
+              <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+                {/* React */}
+                <div className="flex items-center gap-4">
+                  <div
+                    className="
+                      flex
+                      h-8
+                      w-8
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      border
+                      border-primary/30
+                      bg-primary/10
+                      shadow-[0_0_25px_rgba(255,105,0,0.18)]
+                      backdrop-blur-xl
+                      sm:h-10
+                      sm:w-10
+                    "
+                  >
+                    <FaReact
+                      className="
+                        h-4
+                        w-4
+                        text-primary
+                        drop-shadow-[0_0_10px_rgba(255,105,0,0.5)]
+                        sm:h-6
+                        sm:w-6
+                      "
+                    />
+                  </div>
+
+                  <div className="leading-tight">
+                    <span className="block text-sm font-semibold sm:text-base">
+                      React
+                    </span>
+                    <span className="mt-1 block text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      Building interactive
+                      <br />
+                      user interfaces
+                    </span>
+                  </div>
+                </div>
+
+                {/* JavaScript */}
+                <div className="flex items-center gap-4">
+                  <div
+                    className="
+                      flex
+                      h-8
+                      w-8
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      border
+                      border-primary/30
+                      bg-primary/10
+                      shadow-[0_0_25px_rgba(255,105,0,0.18)]
+                      backdrop-blur-xl
+                      sm:h-10
+                      sm:w-10
+                    "
+                  >
+                    <SiJavascript
+                      className="
+                        h-4
+                        w-4
+                        text-primary
+                        drop-shadow-[0_0_10px_rgba(255,105,0,0.5)]
+                        sm:h-5
+                        sm:w-5
+                      "
+                    />
+                  </div>
+
+                  <div className="leading-tight">
+                    <span className="block sm font-semibold sm:text-base">
+                      JavaScript
+                    </span>
+                    <span className="mt-1 block text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      Writing clean and
+                      <br />
+                      efficient code
+                    </span>
+                  </div>
+                </div>
+
+                {/* Tailwind CSS */}
+                {/* <div className="flex items-center gap-4">
+                  <div
+                    className="
+                      flex
+                      h-8
+                      w-8
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      border
+                      border-primary/30
+                      bg-primary/10
+                      shadow-[0_0_25px_rgba(255,105,0,0.18)]
+                      backdrop-blur-xl
+                      sm:h-10
+                      sm:w-10
+                    "
+                  >
+                    <SiTailwindcss
+                      className="
+                        h-4
+                        w-4
+                        text-primary
+                        drop-shadow-[0_0_10px_rgba(255,105,0,0.5)]
+                        sm:h-6
+                        sm:w-6
+                      "
+                    />
+                  </div>
+
+                  <div className="leading-tight">
+                    <span className="block text-sm font-semibold sm:text-base">
+                      Tailwind CSS
+                    </span>
+                    <span className="mt-1 block text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      Creating modern
+                      <br />
+                      and responsive designs
+                    </span>
+                  </div>
+                </div> */}
+
+                {/* Figma */}
+                {/* <div className="flex items-center gap-4">
+                  <div
+                    className="
+                      flex
+                      h-8
+                      w-8
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      border
+                      border-primary/30
+                      bg-primary/10
+                      shadow-[0_0_25px_rgba(255,105,0,0.18)]
+                      backdrop-blur-xl
+                      sm:h-10
+                      sm:w-10
+                    "
+                  >
+                    <FaFigma
+                      className="
+                        h-4
+                        w-4
+                        text-primary
+                        drop-shadow-[0_0_10px_rgba(255,105,0,0.5)]
+                        sm:h-6
+                        sm:w-6
+                      "
+                    />
+                  </div>
+
+                  <div className="leading-tight">
+                    <span className="block text-sm font-semibold sm:text-base">
+                      Figma
+                    </span>
+                    <span className="mt-1 block text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      Designing intuitive
+                      <br />
+                      user experiences
+                    </span>
+                  </div>
+                </div> */}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div
+              className="animate-rise mt-7 lg:mt-8"
+              style={{ animationDelay: "340ms" }}
+            >
+              <PillButton href="#work" size="lg">
+                See my works
+              </PillButton>
+            </div>
+          </div>
+
+          {/* Dominic Wordmark */}
+          <div
+            className="
+              animate-rise
+              relative
+              z-20
+              flex
+              min-h-24
+              items-center
+              justify-center
+              sm:min-h-28
+              lg:mt-2
+              lg:block
+              lg:min-h-0
+              lg:-translate-y-14
+            "
+            style={{ animationDelay: "420ms" }}
+          >
+            <h2
+              className="
+                hero-wordmark-glass
+                mt-24
+                select-none
+                text-center
+                text-[19vw]
+                font-bold
+                leading-[0.85]
+                tracking-tight
+                sm:mt-2
+                sm:text-[18vw]
+                lg:px-20
+                lg:text-[22vw]
+                xl:px-24
+                hero-wordmark
+              "
+            >
+              Dhanush
+            </h2>
+          </div>
+        </div>
+
+        {/* Floating availability card */}
+        <div
+          className="
+            animate-float
+            absolute
+            bottom-35
+            right-4
+            z-20
+            hidden
+            items-center
+            gap-3
+            rounded-2xl
+            border
+            border-primary/40
+            bg-card/44
+            px-4
+            py-3
+            backdrop-blur-md
+            sm:right-8
+            lg:flex
+          "
+        >
+          <span
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-full
+              bg-primary
+            "
+          >
+            <Zap
+              className="
+                h-5
+                w-5
+                fill-primary-foreground
+                text-primary-foreground
+              "
+            />
+          </span>
+
+          <span className="leading-tight">
+            <span className="block text-sm font-semibold">
+              Let&apos;s create
+            </span>
+            <span className="block text-sm font-semibold">
+              something great!
+            </span>
+            <span className="block text-xs text-primary">
+              Available for new projects
+            </span>
+          </span>
+        </div>
+      </section>
+
+      {/* Client / Marquee Section */}
+      <Reveal className="mt-2 shrink-0 border-y border-border py-5 lg:mt-0 lg:py-4">
+        <Marquee duration={30}>
+          {clients.map((client) => (
+            <span
+              key={client}
+              className="
+                flex
+                items-center
+                gap-3
+                px-8
+                text-lg
+                font-medium
+                text-muted-foreground
+                lg:text-base
+              "
+            >
+              <span className="h-3.5 w-3.5 rounded-full border-2 border-primary" />
+              {client}
+            </span>
+          ))}
+        </Marquee>
+      </Reveal>
+    </div>
+  );
+}
 </file>
 
 </files>

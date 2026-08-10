@@ -1,3 +1,4 @@
+// src/components/sections/WorkSection.tsx
 import { Marquee } from "@/components/Marquee";
 import { Reveal } from "@/components/Reveal";
 
@@ -9,7 +10,7 @@ export function WorkSection({ works }: WorkSectionProps) {
   return (
     <section id="work" className="py-6">
       <Reveal>
-        <Marquee duration={45}>
+        <Marquee duration={45} draggable>
           {works.map((src, index) => (
             <div
               key={`${src}-${index}`}
@@ -21,6 +22,7 @@ export function WorkSection({ works }: WorkSectionProps) {
                 loading="lazy"
                 width={800}
                 height={800}
+                draggable={false}
                 className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>
@@ -28,7 +30,7 @@ export function WorkSection({ works }: WorkSectionProps) {
         </Marquee>
       </Reveal>
       <Reveal delay={100} className="mt-5">
-        <Marquee duration={55} reverse>
+        <Marquee duration={55} reverse draggable>
           {[...works].reverse().map((src, index) => (
             <div
               key={`${src}-${index}-reverse`}
@@ -40,6 +42,7 @@ export function WorkSection({ works }: WorkSectionProps) {
                 loading="lazy"
                 width={800}
                 height={800}
+                draggable={false}
                 className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>

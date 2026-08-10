@@ -82,6 +82,7 @@ export function HeroSection({
                 lg:mt-6
                 lg:max-w-2xl
                 hero-sub
+                flex
               "
               style={{ animationDelay: "240ms" }}
             >
