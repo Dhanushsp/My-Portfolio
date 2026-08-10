@@ -5,9 +5,12 @@ import work2 from "@/assets/work-2.jpg";
 import work3 from "@/assets/work-3.jpg";
 import work4 from "@/assets/work-4.jpg";
 import work5 from "@/assets/work-5.jpg";
+import { TemplatesPage } from "@/routes/templates";
 import {
   AboutSection,
   ContactSection,
+  ContactUsSection,
+  FAQSection,
   HeroSection,
   PricingSection,
   ServicesSection,
@@ -46,22 +49,28 @@ const stats = [
 
 const testimonials = [
   {
-    name: "Jille Bernard",
-    role: "Founder at Lume",
+    name: "Sarah Mitchell",
+    role: "Founder of TrendyCart",
+    company: "TrendyCart",
+    rating: "5.0",
     quote:
-      "Dominic transformed our brand identity with a fresh, modern look that truly resonates with our audience.",
+      "Working with Dominic was a game-changer. Their team turned our concept into a seamless digital product that customers love.",
   },
   {
-    name: "David Miller",
-    role: "Head of Product",
+    name: "Liam Walker",
+    role: "CEO of NovaFit",
+    company: "NovaFit",
+    rating: "5.0",
     quote:
-      "From concept to execution, Dominic's attention to detail and creativity exceeded our expectations.",
+      "Dominic delivered a stunning brand direction and a polished digital experience with impressive speed and clarity.",
   },
   {
-    name: "Jille Bernard",
-    role: "Director at Nobo",
+    name: "Maya Lewis",
+    role: "Co-founder of Bloomwell",
+    company: "Bloomwell",
+    rating: "5.0",
     quote:
-      "Our website is a rare peak and intuitive, thanks to Dominic's expertise in digital design.",
+      "Their thoughtful approach made our product feel premium and intuitive. The result exceeded our expectations.",
   },
 ];
 
@@ -92,6 +101,12 @@ const plans = [
 const clients = ["Ultra Blox", "Frame Blox", "Hype Blox", "Supa Blox", "Sky Blox", "Nova Blox"];
 
 export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "");
+
+  if (path === "/templates") {
+    return <TemplatesPage />;
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
@@ -108,7 +123,11 @@ export default function App() {
 
       <TestimonialsSection testimonials={testimonials} />
 
-      <PricingSection plans={plans} />
+      <ContactUsSection />
+
+      <FAQSection />
+
+      {/* <PricingSection plans={plans} /> */}
 
       <ContactSection ctaPortrait={ctaPortrait} />
       <SiteFooter />

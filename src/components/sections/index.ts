@@ -1,6 +1,8 @@
 export { AboutSection } from "./AboutSection";
 export { BrandLogo } from "./BrandLogo";
 export { ContactSection } from "./ContactSection";
+export { ContactUsSection } from "./ContactUsSection";
+export { FAQSection } from "./FAQSection";
 export { HeroSection } from "./HeroSection";
 export { PillButton } from "./PillButton";
 export { PricingSection } from "./PricingSection";
@@ -8,5 +10,6 @@ export { ServicesSection } from "./ServicesSection";
 export { SiteFooter } from "./SiteFooter";
 export { SiteHeader } from "./SiteHeader";
 export { StatsSection } from "./StatsSection";
+export { TemplatesPage } from "./TemplatesPage";
 export { TestimonialsSection } from "./TestimonialsSection";
 export { WorkSection } from "./WorkSection";

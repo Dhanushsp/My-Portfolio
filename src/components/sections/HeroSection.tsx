@@ -270,9 +270,9 @@ export function HeroSection({
               className="animate-rise mt-7 lg:mt-8"
               style={{ animationDelay: "340ms" }}
             >
-              <PillButton href="#work" size="lg">
-                See my works
-              </PillButton>
+              <PillButton href="/templates" size="lg">
+                 See my works
+               </PillButton>
             </div>
           </div>
 

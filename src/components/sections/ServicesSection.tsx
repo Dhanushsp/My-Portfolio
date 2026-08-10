@@ -24,16 +24,22 @@ export function ServicesSection({ services }: ServicesSectionProps) {
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-4 grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => (
             <Reveal
               key={service.n}
               delay={index * 120}
-              className="group rounded-3xl border border-border bg-surface p-8 transition-colors duration-500 hover:border-primary/60"
+              className="group rounded-3xl border border-border bg-surface p-4 text-sm transition-colors duration-500 hover:border-primary/60"
             >
-              <span className="text-4xl font-semibold text-primary">{service.n}</span>
-              <h3 className="mt-16 text-xl font-semibold">{service.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.body}</p>
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-primary/10 text-lg font-semibold text-primary ring-1 ring-primary/20">
+                  {service.n}
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">{service.title}</h3>
+                </div>
+              </div>
+              <p className="mt-4 leading-relaxed text-muted-foreground">{service.body}</p>
             </Reveal>
           ))}
         </div>

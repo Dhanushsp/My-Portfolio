@@ -60,6 +60,8 @@ src/
       AboutSection.tsx
       BrandLogo.tsx
       ContactSection.tsx
+      ContactUsSection.tsx
+      FAQSection.tsx
       HeroSection.tsx
       index.ts
       PillButton.tsx
@@ -95,6 +97,177 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/components/sections/ContactUsSection.tsx">
+import { Reveal } from "@/components/Reveal";
+
+export function ContactUsSection() {
+  return (
+    <section id="contact-us" className="px-4 py-20 sm:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <Reveal>
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+              Contact Us
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight text-foreground sm:text-5xl">
+              Let&apos;s bring your next project to life.
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Share a few details about your vision and I&apos;ll reach out with a clear next step.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div className="mt-12 rounded-[2rem] border border-border bg-surface/80 p-6 shadow-[0_30px_90px_-30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-10">
+            <form
+              action="https://api.web3forms.com/submit"
+              method="POST"
+              className="space-y-6"
+            >
+              <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE" />
+              <input type="hidden" name="subject" value="New contact request from website" />
+              <input type="hidden" name="from_name" value="Dominic Wagner Portfolio" />
+              <div className="grid gap-6 sm:grid-cols-2">
+                <label className="block text-sm font-semibold text-foreground">
+                  Name
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Your name"
+                    className="mt-3 w-full rounded-3xl border border-border bg-background/90 px-4 py-3 text-sm text-foreground outline-none transition-shadow duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </label>
+                <label className="block text-sm font-semibold text-foreground">
+                  Email address
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    placeholder="you@example.com"
+                    className="mt-3 w-full rounded-3xl border border-border bg-background/90 px-4 py-3 text-sm text-foreground outline-none transition-shadow duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </label>
+              </div>
+
+              <label className="block text-sm font-semibold text-foreground">
+                Message
+                <textarea
+                  name="message"
+                  required
+                  rows={6}
+                  placeholder="Tell me about your project"
+                  className="mt-3 w-full rounded-[1.5rem] border border-border bg-background/90 px-4 py-3 text-sm text-foreground outline-none transition-shadow duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors duration-300 hover:bg-primary/90 sm:w-auto"
+              >
+                Send message
+              </button>
+            </form>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+</file>
+
+<file path="src/components/sections/FAQSection.tsx">
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+
+import { Reveal } from "@/components/Reveal";
+
+type FAQItem = {
+  question: string;
+  answer: string;
+};
+
+const faqs: FAQItem[] = [
+  {
+    question: "How do I start a project with you?",
+    answer:
+      "Send a message through the contact section or email directly. I&apos;ll review your request and propose an initial scope that fits your goals and timeline.",
+  },
+  {
+    question: "What is your design process like?",
+    answer:
+      "I begin with clarity and strategy, then move into visual exploration, prototyping, and final handoff. Every stage includes feedback rounds so the result feels purposeful and polished.",
+  },
+  {
+    question: "Can you help with both brand and digital product work?",
+    answer:
+      "Yes — I specialize in brand systems, visual identity, and UI/UX design for websites and digital products, making sure every touchpoint feels consistent.",
+  },
+  {
+    question: "How long does a typical project take?",
+    answer:
+      "Most brand and UI/UX engagements run between 4 to 8 weeks depending on scope, with clear milestones and delivery checkpoints built in.",
+  },
+];
+
+export function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  return (
+    <section id="faq" className="px-4 py-20 sm:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <Reveal>
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+              FAQ
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight text-foreground sm:text-5xl">
+              Frequently asked questions.
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Answers to the most common questions about my process, delivery, and how I work with
+              clients.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="mt-12 space-y-4">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <Reveal key={faq.question} className="rounded-[2rem] border border-border bg-surface/80 shadow-[0_30px_90px_-30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left sm:px-8"
+                >
+                  <span className="text-base font-semibold text-foreground sm:text-lg">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${
+                      isOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`overflow-hidden px-6 transition-all duration-300 sm:px-8 ${
+                    isOpen ? "max-h-80 pb-6" : "max-h-0"
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+</file>
 
 <file path=".lovable/project.json">
 {
@@ -207,6 +380,8 @@ export function ContactSection({ ctaPortrait }: ContactSectionProps) {
 export { AboutSection } from "./AboutSection";
 export { BrandLogo } from "./BrandLogo";
 export { ContactSection } from "./ContactSection";
+export { ContactUsSection } from "./ContactUsSection";
+export { FAQSection } from "./FAQSection";
 export { HeroSection } from "./HeroSection";
 export { PillButton } from "./PillButton";
 export { PricingSection } from "./PricingSection";
@@ -366,16 +541,22 @@ export function ServicesSection({ services }: ServicesSectionProps) {
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-4 grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => (
             <Reveal
               key={service.n}
               delay={index * 120}
-              className="group rounded-3xl border border-border bg-surface p-8 transition-colors duration-500 hover:border-primary/60"
+              className="group rounded-3xl border border-border bg-surface p-4 text-sm transition-colors duration-500 hover:border-primary/60"
             >
-              <span className="text-4xl font-semibold text-primary">{service.n}</span>
-              <h3 className="mt-16 text-xl font-semibold">{service.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.body}</p>
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-primary/10 text-lg font-semibold text-primary ring-1 ring-primary/20">
+                  {service.n}
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">{service.title}</h3>
+                </div>
+              </div>
+              <p className="mt-4 leading-relaxed text-muted-foreground">{service.body}</p>
             </Reveal>
           ))}
         </div>
@@ -533,7 +714,9 @@ export function StatsSection({ stats }: StatsSectionProps) {
 </file>
 
 <file path="src/components/sections/TestimonialsSection.tsx">
-import { Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import { Star, Store } from "lucide-react";
 
 import { Reveal } from "@/components/Reveal";
 
@@ -541,13 +724,72 @@ type TestimonialItem = {
   name: string;
   role: string;
   quote: string;
+  company: string;
+  rating: string;
 };
 
 type TestimonialsSectionProps = {
   testimonials: TestimonialItem[];
 };
 
+const AUTOPLAY_DELAY = 5500;
+const DRAG_THRESHOLD = 60;
+const SIDE_OFFSET = 62; // % of container width each neighbour is shifted by
+
 export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const dragStartX = useRef<number | null>(null);
+  const containerWidth = useRef(1);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const count = testimonials.length;
+
+  const goTo = (index: number) => setActiveIndex(((index % count) + count) % count);
+  const goNext = () => goTo(activeIndex + 1);
+  const goPrev = () => goTo(activeIndex - 1);
+
+  useEffect(() => {
+    if (isDragging || isPaused) return;
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % count);
+    }, AUTOPLAY_DELAY);
+
+    return () => window.clearInterval(interval);
+  }, [count, isDragging, isPaused]);
+
+  const prevIndex = (activeIndex - 1 + count) % count;
+  const nextIndex = (activeIndex + 1) % count;
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    dragStartX.current = event.clientX;
+    containerWidth.current = trackRef.current?.offsetWidth ?? 1;
+    setIsDragging(true);
+    setIsPaused(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStartX.current === null) return;
+    setDragOffset(event.clientX - dragStartX.current);
+  };
+
+  const endDrag = () => {
+    if (dragStartX.current === null) return;
+    if (dragOffset < -DRAG_THRESHOLD) goNext();
+    else if (dragOffset > DRAG_THRESHOLD) goPrev();
+
+    dragStartX.current = null;
+    setDragOffset(0);
+    setIsDragging(false);
+    window.setTimeout(() => setIsPaused(false), 400);
+  };
+
+  const dragPercent = isDragging ? (dragOffset / containerWidth.current) * 100 : 0;
+
   return (
     <section className="px-4 py-20 sm:px-8">
       <div className="mx-auto max-w-[1400px]">
@@ -560,114 +802,80 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
             experienced the power of thoughtful branding and design firsthand.
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <Reveal
-              key={`${testimonial.name}-${index}`}
-              delay={index * 120}
-              className="rounded-3xl border border-border bg-surface p-7"
-            >
-              <div className="flex gap-1 text-primary">
-                {Array.from({ length: 5 }).map((_, starIndex) => (
-                  <Star key={starIndex} className="h-4 w-4 fill-primary" />
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">“{testimonial.quote}”</p>
-              <div className="mt-8">
-                <p className="text-sm font-semibold">{testimonial.name}</p>
-                <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-              </div>
-            </Reveal>
-          ))}
+
+        <div
+          ref={trackRef}
+          className="relative mx-auto mt-16 max-w-2xl touch-pan-y select-none overflow-hidden"
+          style={{
+            maskImage: "linear-gradient(to right, transparent, black 14%, black 86%, transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 14%, black 86%, transparent)",
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={endDrag}
+          onPointerLeave={endDrag}
+          onPointerCancel={endDrag}
+        >
+          <div className={`relative min-h-[26rem] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}>
+            {testimonials.map((testimonial, index) => {
+              const position =
+                index === activeIndex ? 0 : index === prevIndex ? -1 : index === nextIndex ? 1 : 2;
+              const visible = position !== 2;
+
+              const basePercent = position * SIDE_OFFSET;
+              const translatePercent = position === 2 ? 140 : basePercent + dragPercent;
+
+              const transform = `translate(-50%, -50%) translateX(${translatePercent}%)`;
+              const opacity = position === 0 ? 1 : visible ? 0.35 : 0;
+              const zIndex = position === 0 ? 30 : visible ? 20 : 10;
+
+              return (
+                <div
+                  key={`${testimonial.name}-${index}`}
+                  className={`absolute left-1/2 top-1/2 w-[85%] max-w-xl ${
+                    isDragging ? "" : "transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                  }`}
+                  style={{ transform, opacity, zIndex }}
+                  aria-hidden={!visible}
+                  onClick={() => {
+                    if (isDragging) return;
+                    if (position === -1) goPrev();
+                    if (position === 1) goNext();
+                  }}
+                >
+                  <div
+                    className={`flex h-full flex-col justify-between rounded-[2rem] bg-[#1a1a1a] p-8 shadow-[0_30px_90px_-30px_rgba(0,0,0,0.85)] sm:p-10 ${
+                      position !== 0 ? "cursor-pointer" : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Store className="h-5 w-5 shrink-0 text-orange-500" />
+                        <span className="text-lg font-bold text-white">{testimonial.company}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-white">
+                        <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
+                        <span className="text-base font-medium">{testimonial.rating}</span>
+                      </div>
+                    </div>
+
+                    <p className="mt-10 text-lg leading-relaxed text-white/85 sm:text-xl">
+                      “{testimonial.quote}”
+                    </p>
+
+                    <div className="mt-10">
+                      <h3 className="text-2xl font-bold text-white">{testimonial.name}</h3>
+                      <p className="mt-1 text-white/50">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
-  );
-}
-</file>
-
-<file path="src/components/sections/WorkSection.tsx">
-import { Marquee } from "@/components/Marquee";
-import { Reveal } from "@/components/Reveal";
-
-type WorkSectionProps = {
-  works: string[];
-};
-
-export function WorkSection({ works }: WorkSectionProps) {
-  return (
-    <section id="work" className="py-6">
-      <Reveal>
-        <Marquee duration={45}>
-          {works.map((src, index) => (
-            <div
-              key={`${src}-${index}`}
-              className="mr-5 h-56 w-64 shrink-0 overflow-hidden rounded-2xl sm:h-80 sm:w-96"
-            >
-              <img
-                src={src}
-                alt={`Selected design project ${index + 1}`}
-                loading="lazy"
-                width={800}
-                height={800}
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-              />
-            </div>
-          ))}
-        </Marquee>
-      </Reveal>
-      <Reveal delay={100} className="mt-5">
-        <Marquee duration={55} reverse>
-          {[...works].reverse().map((src, index) => (
-            <div
-              key={`${src}-${index}-reverse`}
-              className="mr-5 h-40 w-48 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-72"
-            >
-              <img
-                src={src}
-                alt={`Design case study ${index + 1}`}
-                loading="lazy"
-                width={800}
-                height={800}
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-              />
-            </div>
-          ))}
-        </Marquee>
-      </Reveal>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/Marquee.tsx">
-import type { ReactNode } from "react";
-
-import { cn } from "@/lib/utils";
-
-export function Marquee({
-  children,
-  duration = 40,
-  reverse = false,
-  className,
-}: {
-  children: ReactNode;
-  duration?: number;
-  reverse?: boolean;
-  className?: string;
-}) {
-  return (
-    <div className={cn("marquee-pause relative overflow-hidden", className)}>
-      <div
-        className={reverse ? "marquee-track-reverse" : "marquee-track"}
-        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
-      >
-        <div className="flex shrink-0 items-center">{children}</div>
-        <div className="flex shrink-0 items-center" aria-hidden="true">
-          {children}
-        </div>
-      </div>
-    </div>
   );
 }
 </file>
@@ -765,6 +973,8 @@ import work5 from "@/assets/work-5.jpg";
 import {
   AboutSection,
   ContactSection,
+  ContactUsSection,
+  FAQSection,
   HeroSection,
   PricingSection,
   ServicesSection,
@@ -803,22 +1013,28 @@ const stats = [
 
 const testimonials = [
   {
-    name: "Jille Bernard",
-    role: "Founder at Lume",
+    name: "Sarah Mitchell",
+    role: "Founder of TrendyCart",
+    company: "TrendyCart",
+    rating: "5.0",
     quote:
-      "Dominic transformed our brand identity with a fresh, modern look that truly resonates with our audience.",
+      "Working with Dominic was a game-changer. Their team turned our concept into a seamless digital product that customers love.",
   },
   {
-    name: "David Miller",
-    role: "Head of Product",
+    name: "Liam Walker",
+    role: "CEO of NovaFit",
+    company: "NovaFit",
+    rating: "5.0",
     quote:
-      "From concept to execution, Dominic's attention to detail and creativity exceeded our expectations.",
+      "Dominic delivered a stunning brand direction and a polished digital experience with impressive speed and clarity.",
   },
   {
-    name: "Jille Bernard",
-    role: "Director at Nobo",
+    name: "Maya Lewis",
+    role: "Co-founder of Bloomwell",
+    company: "Bloomwell",
+    rating: "5.0",
     quote:
-      "Our website is a rare peak and intuitive, thanks to Dominic's expertise in digital design.",
+      "Their thoughtful approach made our product feel premium and intuitive. The result exceeded our expectations.",
   },
 ];
 
@@ -865,7 +1081,11 @@ export default function App() {
 
       <TestimonialsSection testimonials={testimonials} />
 
-      <PricingSection plans={plans} />
+      <ContactUsSection />
+
+      <FAQSection />
+
+      {/* <PricingSection plans={plans} /> */}
 
       <ContactSection ctaPortrait={ctaPortrait} />
       <SiteFooter />
@@ -1114,6 +1334,199 @@ npm run dev
       "@/*": ["./src/*"]
     }
   }
+}
+</file>
+
+<file path="src/components/sections/WorkSection.tsx">
+// src/components/sections/WorkSection.tsx
+import { Marquee } from "@/components/Marquee";
+import { Reveal } from "@/components/Reveal";
+
+type WorkSectionProps = {
+  works: string[];
+};
+
+export function WorkSection({ works }: WorkSectionProps) {
+  return (
+    <section id="work" className="py-6">
+      <Reveal>
+        <Marquee duration={45} draggable>
+          {works.map((src, index) => (
+            <div
+              key={`${src}-${index}`}
+              className="mr-5 h-56 w-64 shrink-0 overflow-hidden rounded-2xl sm:h-80 sm:w-96"
+            >
+              <img
+                src={src}
+                alt={`Selected design project ${index + 1}`}
+                loading="lazy"
+                width={800}
+                height={800}
+                draggable={false}
+                className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+            </div>
+          ))}
+        </Marquee>
+      </Reveal>
+      <Reveal delay={100} className="mt-5">
+        <Marquee duration={55} reverse draggable>
+          {[...works].reverse().map((src, index) => (
+            <div
+              key={`${src}-${index}-reverse`}
+              className="mr-5 h-40 w-48 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-72"
+            >
+              <img
+                src={src}
+                alt={`Design case study ${index + 1}`}
+                loading="lazy"
+                width={800}
+                height={800}
+                draggable={false}
+                className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+            </div>
+          ))}
+        </Marquee>
+      </Reveal>
+    </section>
+  );
+}
+</file>
+
+<file path="src/components/Marquee.tsx">
+// src/components/Marquee.tsx
+import { useEffect, useRef, type ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
+
+export function Marquee({
+  children,
+  duration = 40,
+  reverse = false,
+  className,
+  draggable = false,
+}: {
+  children: ReactNode;
+  duration?: number;
+  reverse?: boolean;
+  className?: string;
+  draggable?: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!draggable) return;
+
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+
+    const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Width of a single copy of the content — the track renders two copies
+    // back-to-back so it can loop seamlessly.
+    let loopWidth = track.scrollWidth / 2;
+    const measure = () => {
+      loopWidth = track.scrollWidth / 2;
+    };
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(track);
+
+    const directionSign = reverse ? -1 : 1;
+
+    let position = 0;
+    let dragging = false;
+    let activePointerId: number | null = null;
+    let lastX = 0;
+    let lastTime = performance.now();
+    let rafId = 0;
+
+    // Keeps position inside a single loop-width so the number never grows
+    // unbounded and the duplicated content always lines up seamlessly.
+    const wrap = (value: number) => {
+      if (loopWidth <= 0) return value;
+      const remainder = value % loopWidth;
+      return remainder > 0 ? remainder - loopWidth : remainder;
+    };
+
+    const tick = (time: number) => {
+      const dt = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      // Auto-scroll advances every frame — including while the user is
+      // dragging — so manual drag and automatic motion combine instead of
+      // one pausing the other.
+      if (!reduceMotionQuery.matches && loopWidth > 0) {
+        const speed = (loopWidth / duration) * directionSign;
+        position -= speed * dt;
+      }
+
+      position = wrap(position);
+      track.style.transform = `translate3d(${position}px, 0, 0)`;
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+
+    const onPointerDown = (event: PointerEvent) => {
+      dragging = true;
+      activePointerId = event.pointerId;
+      lastX = event.clientX;
+      container.setPointerCapture(event.pointerId);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!dragging || event.pointerId !== activePointerId) return;
+      const delta = event.clientX - lastX;
+      lastX = event.clientX;
+      position += delta;
+    };
+
+    const stopDragging = (event: PointerEvent) => {
+      if (activePointerId !== null && event.pointerId !== activePointerId) return;
+      dragging = false;
+      activePointerId = null;
+    };
+
+    container.addEventListener("pointerdown", onPointerDown);
+    container.addEventListener("pointermove", onPointerMove);
+    container.addEventListener("pointerup", stopDragging);
+    container.addEventListener("pointercancel", stopDragging);
+    container.addEventListener("pointerleave", stopDragging);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
+      container.removeEventListener("pointerdown", onPointerDown);
+      container.removeEventListener("pointermove", onPointerMove);
+      container.removeEventListener("pointerup", stopDragging);
+      container.removeEventListener("pointercancel", stopDragging);
+      container.removeEventListener("pointerleave", stopDragging);
+    };
+  }, [draggable, duration, reverse]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative overflow-hidden",
+        draggable ? "cursor-grab touch-pan-y select-none active:cursor-grabbing" : "marquee-pause",
+        className,
+      )}
+    >
+      <div
+        ref={trackRef}
+        className={draggable ? "flex w-max" : reverse ? "marquee-track-reverse" : "marquee-track"}
+        style={!draggable ? ({ "--marquee-duration": `${duration}s` } as React.CSSProperties) : undefined}
+      >
+        <div className="flex shrink-0 items-center">{children}</div>
+        <div className="flex shrink-0 items-center" aria-hidden="true">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
 </file>
 
