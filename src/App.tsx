@@ -1,10 +1,11 @@
 import ctaPortrait from "@/assets/cta-portrait.jpg";
 import heroBg from "@/assets/hero-bg.png";
-import work1 from "@/assets/work-1.jpg";
-import work2 from "@/assets/work-2.jpg";
-import work3 from "@/assets/work-3.jpg";
-import work4 from "@/assets/work-4.jpg";
-import work5 from "@/assets/work-5.jpg";
+import bundle1 from "@/assets/bundle-1.png";
+import bundle2 from "@/assets/bundle-2.png";
+import bundle3 from "@/assets/bundle-3.png";
+import project1 from "@/assets/project-1.png";
+import project2 from "@/assets/project-2.png";
+import project3 from "@/assets/project-3.png";
 import { TemplatesPage } from "@/routes/templates";
 import {
   AboutSection,
@@ -21,7 +22,8 @@ import {
   WorkSection,
 } from "@/components/sections";
 
-const works = [work1, work2, work3, work4, work5];
+const topRowWorks = [bundle1, bundle2, bundle3];
+const bottomRowWorks = [project1, project2, project3];
 
 const services = [
   {
@@ -115,7 +117,7 @@ export default function App() {
 
       <AboutSection />
 
-      <WorkSection works={works} />
+      <WorkSection topRowWorks={topRowWorks} bottomRowWorks={bottomRowWorks} />
 
       <ServicesSection services={services} />
 
